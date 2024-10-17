@@ -52,6 +52,7 @@ export default {
       synthesizer: null,
       analyser: null,
       waveDataSize: 512,
+      currentFrequency: 440,
       params: parameterDescriptor.parameters
     }
   },

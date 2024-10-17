@@ -57,9 +57,9 @@ export default {
       this.$emit("parameterChanged", param)
     },
     frequencyChanged(newLogFreq) {
-      this.logFreq = newLogFreq;
+       this.logFreq = newLogFreq;
       const frequency = Math.round(Math.exp(this.logFreq));
-      if (frequency != this.frequency) {
+      if (frequency !== this.frequency) {
         this.frequency = frequency
         const param = { id: this.params.frequency.id, value: this.frequency }
         this.$emit("parameterChanged", param)

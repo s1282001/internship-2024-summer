@@ -63,9 +63,6 @@ export default {
       const key = Object.keys(this.oscTypes).find(key => this.oscTypes[key].index == i - 1)
       return this.oscTypes[key].name
   },
-  midiFrequency(midiNote) {
-      return 440 * Math.pow(2, (midiNote - 69) / 12); 
-    },
   changeFrequency(midiNote) {
       this.logFreq = Math.log(this.midiFrequency(midiNote)); 
       this.frequencyChanged(); 

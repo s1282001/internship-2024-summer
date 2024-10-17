@@ -145,7 +145,7 @@ export default {
     },
     changeFrequency(midiNote) {
      const newLogFreq = Math.log(this.midiFrequency(midiNote)); 
-    this.$refs.oscillatorUI.frequencyChanged(newLogFreq); 
+     this.$refs.oscillatorUI.frequencyChanged(newLogFreq); 
   },
     draw() {
       this.$refs.spectrum.drawSpectrum()

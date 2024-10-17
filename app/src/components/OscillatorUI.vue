@@ -42,29 +42,31 @@ const oscTypeChanged = () => {
 };
 
 const oscTypeName = (i) => {
-  const key = Object.keys(oscTypes).find(key => oscTypes[key].index == i - 1);
+  const key = Object.keys(oscTypes).find(key => oscTypes[key].index === i - 1);
   return oscTypes[key].name;
 };
 </script>
 
 <template>
-  <h3 class="section-title">Oscillator</h3>
-  <div class="section">
-    <div class="param" id="oscType">
-      <h5>{{ params.oscType.name }}</h5>
-      <select v-model="oscType" @change="oscTypeChanged">
-        <option v-for="i in Object.keys(oscTypes).length" :key="i" :value="i - 1">
-          {{ oscTypeName(i) }}
-        </option>
-      </select>
+  <div> <!-- Added a single root element -->
+    <h3 class="section-title">Oscillator</h3>
+    <div class="section">
+      <div class="param" id="oscType">
+        <h5>{{ params.oscType.name }}</h5>
+        <select v-model="oscType" @change="oscTypeChanged">
+          <option v-for="i in Object.keys(oscTypes).length" :key="i" :value="i - 1">
+            {{ oscTypeName(i) }}
+          </option>
+        </select>
+      </div>
+      <div class="param" id="oscFrequency">
+        <h5>{{ params.frequency.name }}</h5>
+        <input type="range" :min="minLogFreq" :max="maxLogFreq" :step="(maxLogFreq - minLogFreq) / 10000"
+          v-model="logFreq" @input="frequencyChanged" />
+        <div>{{ Math.round(Math.exp(logFreq)) }} Hz</div>
+      </div>
     </div>
-    <div class="param" id="oscFrequency">
-      <h5>{{ params.frequency.name }}</h5>
-      <input type="range" :min="minLogFreq" :max="maxLogFreq" :step="(maxLogFreq - minLogFreq) / 10000"
-        v-model="logFreq" @input="frequencyChanged" />
-      <div>{{ Math.round(Math.exp(logFreq)) }} Hz</div>
-    </div>
-  </div>
+  </div> <!-- Single root element -->
 </template>
 
 <style scoped>

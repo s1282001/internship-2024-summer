@@ -134,7 +134,7 @@ export default {
     },
     midiNoteOn(noteNumber, velocity) {
       // todo, support note number and velocity
-      const freq= midiFrequency(noteNumber);
+      const freq= this.midiFrequency(noteNumber);
       let data = {
         id: this.params.frequency.id,
         value: freq

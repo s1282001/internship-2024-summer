@@ -68,7 +68,7 @@ export default {
       return 440 * Math.pow(2, (midiNote - 69) / 12); 
     },
   changeFrequency(midiNote) {
-      this.logFreq = Math.log(this.midiNoteToFrequency(midiNote)); 
+      this.logFreq = Math.log(this.midiFrequency(midiNote)); 
       this.frequencyChanged(); 
     }
   },

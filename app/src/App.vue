@@ -33,7 +33,7 @@ import MidiHandler from "./MidiHandler.js";
         <SpectrumAnalyzer ref="spectrum" :analyser="analyser" />
       </div>
       <div>
-        <OscillatorUI @parameterChanged="onParameterChanged" />
+        <OscillatorUI :frequency="currentFrequency" @parameterChanged="onParameterChanged" />
         <FilterUI @parameterChanged="onParameterChanged" />
         <AmpUI @parameterChanged="onParameterChanged" />
       </div>
@@ -134,6 +134,8 @@ export default {
     },
     midiNoteOn(noteNumber, velocity) {
       // todo, support note number and velocity
+      this.currentFrequency = this.$refs.oscillatorUI.midiFrequency(noteNumber);
+      this.$refs.oscillatorUI.changeFrequency(noteNumber);
 
       this.noteOn();
     },

@@ -4,7 +4,7 @@ import FilterUI from './components/FilterUI.vue';
 import AmpUI from './components/AmpUI.vue';
 import WaveDisplay from './components/WaveDisplay.vue';
 import SpectrumAnalyzer from './components/SpectrumAnalyzer.vue';
-import parameterDescriptor from "./parameterDescriptor.js";
+import parameterDescriptor from "./parameterDescriptor.js"
 import MyWorkletProcessorUrl from '../public/SynthesizerWorklet.js?worker&url';
 import MidiHandler from "./MidiHandler.js";
 </script>
@@ -33,7 +33,7 @@ import MidiHandler from "./MidiHandler.js";
         <SpectrumAnalyzer ref="spectrum" :analyser="analyser" />
       </div>
       <div>
-        <OscillatorUI ref="oscillatorUI" :frequency="currentFrequency" @parameterChanged="onParameterChanged" />
+        <OscillatorUI @parameterChanged="onParameterChanged" />
         <FilterUI @parameterChanged="onParameterChanged" />
         <AmpUI @parameterChanged="onParameterChanged" />
       </div>
@@ -48,11 +48,12 @@ export default {
     return {
       isStarted: false,
       context: null,
+      sampleRate: 48000,
       synthesizer: null,
       analyser: null,
       waveDataSize: 512,
-      currentFrequency: 440,  // Default frequency
-    };
+      params: parameterDescriptor.parameters
+    }
   },
   methods: {
     setup() {
@@ -60,68 +61,86 @@ export default {
       this.setupMidi();
     },
     setupWorklet() {
-      console.log("start");
-      this.isStarted = true;
+      console.log("start")
+      this.isStarted = true
       window.AudioContext = window.AudioContext || window.webkitAudioContext;
-      const context = new AudioContext();
-      this.context = context;
+      const context = new AudioContext()
+      this.sampleRate = context.sampleRate
+      this.context = context
 
+      let options = {
+        processorOptions: {
+          sampleRate: this.context.sampleRate,
+        },
+        numberOfInputs: 0,
+        numberOfOutputs: 1,
+        outputChannelCount: [1]
+      }
       context.audioWorklet.addModule(MyWorkletProcessorUrl).then(() => {
-        this.synthesizer = new AudioWorkletNode(context, 'synthesizer-worklet', {
-          numberOfInputs: 0,
-          numberOfOutputs: 1,
-          outputChannelCount: [1]
-        });
+        this.synthesizer = new AudioWorkletNode(context, 'synthesizer-worklet', options)
+
+        console.log(this.synthesizer)
 
         this.analyser = this.context.createAnalyser();
+        this.analyser.maxDecibels = 0;
         this.analyser.fftSize = this.waveDataSize;
-        this.synthesizer.connect(this.analyser).connect(context.destination);
-      });
+        this.synthesizer.connect(this.analyser).connect(context.destination)
+
+        setInterval(this.draw, 1000 / 10) //  オシロスコープ描画用タイマー
+      })
     },
     onParameterChanged(value) {
-      const data = { type: "param", value: value };
-      this.synthesizer.port.postMessage(data);
+      const data = { type: "param", value: value }
+      this.synthesizer.port.postMessage(data)
     },
     noteOn() {
-      const data = { type: "noteOn", value: true };
-      this.synthesizer.port.postMessage(data);
+      console.log("noteOn")
+      const data = { type: "noteOn", value: true }
+      this.synthesizer.port.postMessage(data)
     },
     noteOff() {
-      const data = { type: "noteOn", value: false };
-      this.synthesizer.port.postMessage(data);
+      const data = { type: "noteOn", value: false }
+      this.synthesizer.port.postMessage(data)
     },
     setupMidi() {
-      MidiHandler.init(); // Initialize Web MIDI
-      MidiHandler.setHandleMidiCallback(this.processMidiMessage); // Set callback for MIDI messages
+      MidiHandler.init(); // Web MIDIのセットアップ
+      MidiHandler.setHandleMidiCallback(this.processMidiMessage); // processMidiMessageをMIDI受信時のコールバックに設定
     },
     processMidiMessage(message) {
-      const data = message.data;
-      const [status, data1] = data;
+      // console.log(message);
+      const data = message.data; // データを取得 Uint8Array（8bit符号なし整数値の配列)
+      const [status, data1, data2] = data; // 各要素を変数に格納　先頭がステータスバイト、それ以降がデータバイト
+      //各データバイトは1byte（8bit）だが先頭の1bitはデータバイトであることを示すフラグで常に０なので得られる値は7bit(0~127)である
+      console.log(`status-byte: ${status}, data-byte-1: ${data1}, data-byte-2: ${data2}`)
 
       switch (status >> 4) {
-        case 0x8:  // Note Off
-          this.noteOff();
+        case 0x8:  // 8n hex(nはMIDIチャンネル)はノートオフを指す
+          //  ノートオフメッセージの場合も、data1：ノート番号、data2：ベロシティ
+          this.midiNoteOff(data1, data2);
           break;
 
-        case 0x9:  // Note On
-          this.midiNoteOn(data1);
+        case 0x9:  // 9n hex(nはMIDIチャンネル)はノートオンを指す
+          //  ノートオンメッセージの場合、data1：ノート番号、data2：ベロシティ
+          this.midiNoteOn(data1, data2);
           break;
 
         default:
-          console.log("Unsupported status byte.");
+          console.log("This status byte is not supported in this app.");
           break;
       }
     },
-    midiNoteOn(noteNumber) {
-      // Update frequency based on MIDI note
-      this.currentFrequency = this.midiFrequency(noteNumber);
-      // Emit the new frequency to the OscillatorUI
-      this.$refs.oscillatorUI.frequencyChanged(Math.log(this.currentFrequency)); // Call the method directly
+    midiNoteOff(noteNumber, velocity) {
+      this.noteOff();
+    },
+    midiNoteOn(noteNumber, velocity) {
+      // todo, support note number and velocity
+      frequency= 440*math.pow(2,((noteNumber-69)/12);
+
       this.noteOn();
     },
-    midiFrequency(midiNote) {
-      return 440 * Math.pow(2, (midiNote - 69) / 12); 
-    },
+    draw() {
+      this.$refs.spectrum.drawSpectrum()
+    }
   },
 }
 </script>

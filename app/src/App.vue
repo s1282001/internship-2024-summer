@@ -144,8 +144,8 @@ export default {
       return 440 * Math.pow(2, (midiNote - 69) / 12); 
     },
     changeFrequency(midiNote) {
-     const newLogFreq = Math.log(this.midiFrequency(midiNote)); 
-     this.$refs.oscillatorUI.frequencyChanged(newLogFreq); 
+      const newLogFreq = Math.log(this.midiFrequency(midiNote)); 
+      this.$emit('update:frequency', newLogFreq);
   },
     draw() {
       this.$refs.spectrum.drawSpectrum()

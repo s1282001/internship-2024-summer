@@ -1,77 +1,84 @@
 <script setup>
-import parameterDescriptor from "../parameterDescriptor.js"
+import { ref, watch, defineEmits } from 'vue';
+import parameterDescriptor from "../parameterDescriptor.js";
+
+// Define emits
+const emit = defineEmits(['parameterChanged']);
+
+// Define reactive properties
+const params = parameterDescriptor.parameters;
+const oscTypes = parameterDescriptor.oscTypes;
+
+const oscType = ref(parameterDescriptor.parameters.oscType.defaultValue);
+const frequency = ref(parameterDescriptor.parameters.frequency.defaultValue);
+
+// For log scale slider
+const logFreq = ref(Math.log(parameterDescriptor.parameters.frequency.defaultValue));
+const minLogFreq = ref(Math.log(parameterDescriptor.parameters.frequency.minValue));
+const maxLogFreq = ref(Math.log(parameterDescriptor.parameters.frequency.maxValue));
+
+// Watch for frequency changes to update logFreq
+watch(frequency, (newVal) => {
+  logFreq.value = Math.log(newVal);
+});
+
+// Emit frequency change
+const frequencyChanged = () => {
+  const freq = Math.round(Math.exp(logFreq.value));
+  if (freq !== frequency.value) {
+    frequency.value = freq;
+    const param = { id: params.frequency.id, value: frequency.value };
+    emit("parameterChanged", param);
+  }
+};
+
+const oscTypeChanged = () => {
+  const param = { id: params.oscType.id, value: oscType.value };
+  emit("parameterChanged", param);
+};
+
+const oscTypeName = (i) => {
+  const key = Object.keys(oscTypes).find(key => oscTypes[key].index == i - 1);
+  return oscTypes[key].name;
+};
 </script>
 
 <template>
   <h3 class="section-title">Oscillator</h3>
   <div class="section">
     <div class="param" id="oscType">
-      <h5>
-        {{ params.oscType.name }}
-      </h5>
+      <h5>{{ params.oscType.name }}</h5>
       <select v-model="oscType" @change="oscTypeChanged">
-        <option v-for="i in Object.keys(oscTypes).length" v-bind:value="i - 1">
+        <option v-for="i in Object.keys(oscTypes).length" :key="i" :value="i - 1">
           {{ oscTypeName(i) }}
         </option>
       </select>
     </div>
     <div class="param" id="oscFrequency">
-      <h5>
-        {{ params.frequency.name }}
-      </h5>
+      <h5>{{ params.frequency.name }}</h5>
       <input type="range" :min="minLogFreq" :max="maxLogFreq" :step="(maxLogFreq - minLogFreq) / 10000"
         v-model="logFreq" @input="frequencyChanged" />
-      <div>
-        {{ frequency }} Hz
-      </div>
+      <div>{{ frequency }} Hz</div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: "OscillatorUI",
-  emits: ["parameterChanged"],
-  data() {
-    return {
-      params: parameterDescriptor.parameters,
-      oscTypes: parameterDescriptor.oscTypes,
-
-      oscType: parameterDescriptor.parameters.oscType.defaultValue,
-      frequency: parameterDescriptor.parameters.frequency.defaultValue,
-
-      // for log scale slider
-      logFreq: Math.log(parameterDescriptor.parameters.frequency.defaultValue),
-      minLogFreq: Math.log(parameterDescriptor.parameters.frequency.minValue),
-      maxLogFreq: Math.log(parameterDescriptor.parameters.frequency.maxValue),
-    }
-  },
-  watch: {
-    frequency(newVal) {
-      this.logFreq = Math.log(newVal); 
-    }
-  },
-  methods: {
-    oscTypeChanged(event) {
-      const param = { id: this.params.oscType.id, value: this.oscType }
-      this.$emit("parameterChanged", param)
-    },
-    frequencyChanged(newLogFreq) {
-       this.logFreq = newLogFreq;
-      const frequency = Math.round(Math.exp(this.logFreq));
-      if (frequency !== this.frequency) {
-        this.frequency = frequency
-        const param = { id: this.params.frequency.id, value: this.frequency }
-        this.$emit("parameterChanged", param)
-      }
-    },
-    oscTypeName(i) {
-      const key = Object.keys(this.oscTypes).find(key => this.oscTypes[key].index == i - 1)
-      return this.oscTypes[key].name
-    }
-  },
-
+<style scoped>
+.section {
+  margin: 16px;
 }
-</script>
 
-<style scoped></style>
+.param {
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+}
+
+h5 {
+  margin: 8px 0;
+}
+</style>
+

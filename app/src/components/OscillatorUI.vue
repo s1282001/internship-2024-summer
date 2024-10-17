@@ -46,6 +46,11 @@ export default {
       maxLogFreq: Math.log(parameterDescriptor.parameters.frequency.maxValue),
     }
   },
+  watch: {
+    frequency(newVal) {
+      this.logFreq = Math.log(newVal); 
+    }
+  },
   methods: {
     oscTypeChanged(event) {
       const param = { id: this.params.oscType.id, value: this.oscType }

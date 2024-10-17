@@ -33,7 +33,7 @@ import MidiHandler from "./MidiHandler.js";
         <SpectrumAnalyzer ref="spectrum" :analyser="analyser" />
       </div>
       <div>
-        <OscillatorUI :frequency="currentFrequency" @parameterChanged="onParameterChanged" />
+        <OscillatorUI ref="oscillatorUI" :frequency="currentFrequency" @parameterChanged="onParameterChanged" />
         <FilterUI @parameterChanged="onParameterChanged" />
         <AmpUI @parameterChanged="onParameterChanged" />
       </div>

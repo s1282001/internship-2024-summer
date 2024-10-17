@@ -134,9 +134,17 @@ export default {
     },
     midiNoteOn(noteNumber, velocity) {
       // todo, support note number and velocity
-      
+      const freq= midiFrequency(noteNumber);
+      let data = {
+        id: this.params.frequency.id,
+        value: freq
+      };
+      this.onParameterChanged(data);
 
       this.noteOn();
+    },
+    midiFrequency(noteNumber){
+      return 440* Math.pow(2, (noteNumber - 69) / 12);
     },
     draw() {
       this.$refs.spectrum.drawSpectrum()

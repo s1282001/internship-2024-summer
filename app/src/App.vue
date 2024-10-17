@@ -135,10 +135,13 @@ export default {
     },
     midiNoteOn(noteNumber, velocity) {
       // todo, support note number and velocity
-     // this.currentFrequency = this.$refs.oscillatorUI.midiFrequency(noteNumber);
-     // this.$refs.oscillatorUI.changeFrequency(noteNumber);
+      this.currentFrequency = this.midiFrequency(noteNumber);
+      this.$refs.oscillatorUI.changeFrequency(noteNumber);
 
       this.noteOn();
+    },
+    midiFrequency(midiNote) {
+      return 440 * Math.pow(2, (midiNote - 69) / 12); 
     },
     draw() {
       this.$refs.spectrum.drawSpectrum()

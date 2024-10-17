@@ -135,8 +135,8 @@ export default {
     },
     midiNoteOn(noteNumber, velocity) {
       // todo, support note number and velocity
-      this.currentFrequency = this.$refs.oscillatorUI.midiFrequency(noteNumber);
-      this.$refs.oscillatorUI.changeFrequency(noteNumber);
+     // this.currentFrequency = this.$refs.oscillatorUI.midiFrequency(noteNumber);
+     // this.$refs.oscillatorUI.changeFrequency(noteNumber);
 
       this.noteOn();
     },

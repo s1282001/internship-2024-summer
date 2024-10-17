@@ -51,7 +51,8 @@ export default {
       const param = { id: this.params.oscType.id, value: this.oscType }
       this.$emit("parameterChanged", param)
     },
-    frequencyChanged(event) {
+    frequencyChanged(newLogFreq) {
+      this.logFreq = newLogFreq;
       const frequency = Math.round(Math.exp(this.logFreq));
       if (frequency != this.frequency) {
         this.frequency = frequency

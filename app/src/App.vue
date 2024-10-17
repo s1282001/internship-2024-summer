@@ -112,6 +112,30 @@ export default {
       const [status, data1, data2] = data; // 各要素を変数に格納　先頭がステータスバイト、それ以降がデータバイト
       //各データバイトは1byte（8bit）だが先頭の1bitはデータバイトであることを示すフラグで常に０なので得られる値は7bit(0~127)である
       console.log(`status-byte: ${status}, data-byte-1: ${data1}, data-byte-2: ${data2}`)
+
+      switch (status >> 4) {
+        case 0x8:  // 8n hex(nはMIDIチャンネル)はノートオフを指す
+          //  ノートオフメッセージの場合も、data1：ノート番号、data2：ベロシティ
+          this.midiNoteOff(data1, data2);
+          break;
+
+        case 0x9:  // 9n hex(nはMIDIチャンネル)はノートオンを指す
+          //  ノートオンメッセージの場合、data1：ノート番号、data2：ベロシティ
+          this.midiNoteOn(data1, data2);
+          break;
+
+        default:
+          console.log("This status byte is not supported in this app.");
+          break;
+      }
+    },
+    midiNoteOff(noteNumber, velocity) {
+      this.noteOff();
+    },
+    midiNoteOn(noteNumber, velocity) {
+      // todo, support note number and velocity
+
+      this.noteOn();
     },
     draw() {
       this.$refs.spectrum.drawSpectrum()

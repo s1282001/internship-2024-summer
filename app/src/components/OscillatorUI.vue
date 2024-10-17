@@ -69,8 +69,9 @@ export default {
   changeFrequency(midiNote) {
       this.logFreq = Math.log(this.midiFrequency(midiNote)); 
       this.frequencyChanged(); 
-  },
-}
+  }
+ },
+};
 </script>
 
 <style scoped></style>

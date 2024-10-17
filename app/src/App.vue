@@ -3,9 +3,10 @@ import OscillatorUI from './components/OscillatorUI.vue';
 import FilterUI from './components/FilterUI.vue';
 import AmpUI from './components/AmpUI.vue';
 import WaveDisplay from './components/WaveDisplay.vue';
-import SpectrumAnalyzer from './components/SpectrumAnalyzer.vue';  
+import SpectrumAnalyzer from './components/SpectrumAnalyzer.vue';
 import parameterDescriptor from "./parameterDescriptor.js"
 import MyWorkletProcessorUrl from '../public/SynthesizerWorklet.js?worker&url';
+import MidiHandler from "./MidiHandler.js";
 </script>
 
 <template>
@@ -19,7 +20,7 @@ import MyWorkletProcessorUrl from '../public/SynthesizerWorklet.js?worker&url';
       </h2>
     </div>
     <div>
-      <button id="start-button" v-show="!isStarted" @click="setupWorklet">
+      <button id="start-button" v-show="!isStarted" @click="setup">
         start
       </button>
     </div>
@@ -55,6 +56,10 @@ export default {
     }
   },
   methods: {
+    setup() {
+      this.setupWorklet();
+      this.setupMidi();
+    },
     setupWorklet() {
       console.log("start")
       this.isStarted = true
@@ -96,6 +101,17 @@ export default {
     noteOff() {
       const data = { type: "noteOn", value: false }
       this.synthesizer.port.postMessage(data)
+    },
+    setupMidi() {
+      MidiHandler.init(); // Web MIDIのセットアップ
+      MidiHandler.setHandleMidiCallback(this.processMidiMessage); // processMidiMessageをMIDI受信時のコールバックに設定
+    },
+    processMidiMessage(message) {
+      // console.log(message);
+      const data = message.data; // データを取得 Uint8Array（8bit符号なし整数値の配列)
+      const [status, data1, data2] = data; // 各要素を変数に格納　先頭がステータスバイト、それ以降がデータバイト
+      //各データバイトは1byte（8bit）だが先頭の1bitはデータバイトであることを示すフラグで常に０なので得られる値は7bit(0~127)である
+      console.log(`status-byte: ${status}, data-byte-1: ${data1}, data-byte-2: ${data2}`)
     },
     draw() {
       this.$refs.spectrum.drawSpectrum()

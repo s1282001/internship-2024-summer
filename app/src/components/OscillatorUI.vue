@@ -71,7 +71,7 @@ export default {
       this.frequencyChanged(); 
   }
  },
-};
+}
 </script>
 
 <style scoped></style>

@@ -134,7 +134,7 @@ export default {
     },
     midiNoteOn(noteNumber, velocity) {
       // todo, support note number and velocity
-      OscillatorUI.frequency= 440*math.pow(2,((noteNumber-69)/12);
+      
 
       this.noteOn();
     },

@@ -64,6 +64,14 @@ export default {
       return this.oscTypes[key].name
     }
   },
+  midiFrequency(midiNote) {
+      return 440 * Math.pow(2, (midiNote - 69) / 12); // 
+    },
+  changeFrequency(midiNote) {
+      this.logFreq = Math.log(this.midiNoteToFrequency(midiNote)); // Set log frequency
+      this.frequencyChanged(); // Trigger frequency change
+    }
+  },
 }
 </script>
 

@@ -1,6 +1,14 @@
 <script setup>
-import { ref, watch, defineEmits } from 'vue';
+import { ref, watch, defineProps, defineEmits } from 'vue';
 import parameterDescriptor from "../parameterDescriptor.js";
+
+// Define props
+const props = defineProps({
+  frequency: {
+    type: Number,
+    required: true,
+  },
+});
 
 // Define emits
 const emit = defineEmits(['parameterChanged']);
@@ -10,31 +18,27 @@ const params = parameterDescriptor.parameters;
 const oscTypes = parameterDescriptor.oscTypes;
 
 const oscType = ref(parameterDescriptor.parameters.oscType.defaultValue);
-const frequency = ref(parameterDescriptor.parameters.frequency.defaultValue);
 
 // For log scale slider
-const logFreq = ref(Math.log(parameterDescriptor.parameters.frequency.defaultValue));
+const logFreq = ref(Math.log(props.frequency));
 const minLogFreq = ref(Math.log(parameterDescriptor.parameters.frequency.minValue));
 const maxLogFreq = ref(Math.log(parameterDescriptor.parameters.frequency.maxValue));
 
 // Watch for frequency changes to update logFreq
-watch(frequency, (newVal) => {
+watch(() => props.frequency, (newVal) => {
   logFreq.value = Math.log(newVal);
 });
 
 // Emit frequency change
 const frequencyChanged = () => {
   const freq = Math.round(Math.exp(logFreq.value));
-  if (freq !== frequency.value) {
-    frequency.value = freq;
-    const param = { id: params.frequency.id, value: frequency.value };
-    emit("parameterChanged", param);
+  if (freq !== props.frequency) {
+    emit("parameterChanged", { id: params.frequency.id, value: freq });
   }
 };
 
 const oscTypeChanged = () => {
-  const param = { id: params.oscType.id, value: oscType.value };
-  emit("parameterChanged", param);
+  emit("parameterChanged", { id: params.oscType.id, value: oscType.value });
 };
 
 const oscTypeName = (i) => {
@@ -58,7 +62,7 @@ const oscTypeName = (i) => {
       <h5>{{ params.frequency.name }}</h5>
       <input type="range" :min="minLogFreq" :max="maxLogFreq" :step="(maxLogFreq - minLogFreq) / 10000"
         v-model="logFreq" @input="frequencyChanged" />
-      <div>{{ frequency }} Hz</div>
+      <div>{{ Math.round(Math.exp(logFreq)) }} Hz</div>
     </div>
   </div>
 </template>
